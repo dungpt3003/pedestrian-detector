@@ -17,9 +17,9 @@
 #include <cstdlib>
 
 // libsvm
-#include "libsvm-3.14/svm.h"
+#include "../thirdparty/libsvm-3.14/svm.h"
 
-// OpenCV 
+// OpenCV
 #include <opencv2/opencv.hpp>
 
 // Logging macro
