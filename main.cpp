@@ -22,6 +22,29 @@ static string descriptorVectorFile = "genfiles/descriptorvector.dat";
 // Set the file to write the resulting opencv hog classifier as YAML file
 static string cvHOGFile = "genfiles/cvHOGClassifier.yaml";
 
+// HOG parameters for training that for some reason are not included in the HOG class
+static const Size trainingPadding = Size(0, 0);
+static const Size winStride = Size(8, 8);
+
+/* Helper functions */
+
+static string toLowerCase(const string& in) {
+    string t;
+    for (string::const_iterator i = in.begin(); i != in.end(); ++i) {
+        t += tolower(*i);
+    }
+    return t;
+}
+
+static void storeCursor(void) {
+    printf("\033[s");
+}
+
+static void resetCursor(void) {
+    printf("\033[u");
+}
+
+
 int readDatabse(int argc, char** argv){
   const char* dbFName = argv[1];
   ImageDatabase db(dbFName);
