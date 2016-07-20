@@ -12,6 +12,7 @@
 #include "lib/common.h"
 #include "lib/ImageDatabase.h"
 
+#define TRAINHOG_USEDSVM SVMLIGHT
 
 using namespace cv;
 using namespace std;
@@ -214,7 +215,7 @@ static void detectTest(const HOGDescriptor& hog, const double hitThreshold, Mat&
 
 int main(int argc, char** argv ){
     HOGDescriptor hog; // Use standard parameters here
-    hog.winSize = Size(64, 128); // Default training images size as used in paper
+    hog.winSize = Size(96, 160); // Training images size
 
     static vector<string> positiveTrainingImages;
     static vector<string> negativeTrainingImages;
@@ -226,5 +227,62 @@ int main(int argc, char** argv ){
     getFilesInDirectory(posSamplesDir, positiveTrainingImages, validExtensions);
     getFilesInDirectory(negSamplesDir, negativeTrainingImages, validExtensions);
     unsigned long overallSamples = positiveTrainingImages.size() + negativeTrainingImages.size();
-    cout << overallSamples << endl;
+    //cout << overallSamples << endl;
+
+    // <editor-fold defaultstate="collapsed" desc="Calculate HOG features and save to file">
+    // Make sure there are actually samples to train
+    if (overallSamples == 0) {
+        printf("No training sample files found, nothing to do!\n");
+        return EXIT_SUCCESS;
+    }
+
+    /// @WARNING: This is really important, some libraries (e.g. ROS) seems to set the system locale which takes decimal commata instead of points which causes the file input parsing to fail
+    setlocale(LC_ALL, "C"); // Do not use the system locale
+    setlocale(LC_NUMERIC,"C");
+    setlocale(LC_ALL, "POSIX");
+
+    printf("Reading files, generating HOG features and save them to file '%s':\n", featuresFile.c_str());
+    float percent;
+
+    fstream File;
+    File.open(featuresFile.c_str(), ios::out);
+    if (File.good() && File.is_open()) {
+        #if TRAINHOG_USEDSVM == SVMLIGHT
+            File << "# Use this file to train, e.g. SVMlight by issuing $ svm_learn -i 1 -a weights.txt " << featuresFile.c_str() << endl;
+        #endif
+        // Iterate over sample images
+        for (unsigned long currentFile = 0; currentFile < overallSamples; ++currentFile) {
+            storeCursor();
+            vector<float> featureVector;
+            // Get positive or negative sample image file path
+            const string currentImageFile = (currentFile < positiveTrainingImages.size() ? positiveTrainingImages.at(currentFile) : negativeTrainingImages.at(currentFile - positiveTrainingImages.size()));
+            // Output progress
+            if ( (currentFile+1) % 10 == 0 || (currentFile+1) == overallSamples ) {
+                percent = ((currentFile+1) * 100 / overallSamples);
+                printf("%5lu (%3.0f%%):\tFile '%s'", (currentFile+1), percent, currentImageFile.c_str());
+                fflush(stdout);
+                resetCursor();
+            }
+            // Calculate feature vector from current image file
+            calculateFeaturesFromInput(currentImageFile, featureVector, hog);
+            if (!featureVector.empty()) {
+                /* Put positive or negative sample class to file,
+                 * true=positive, false=negative,
+                 * and convert positive class to +1 and negative class to -1 for SVMlight
+                 */
+                File << ((currentFile < positiveTrainingImages.size()) ? "+1" : "-1");
+                // Save feature vector components
+                for (unsigned int feature = 0; feature < featureVector.size(); ++feature) {
+                    File << " " << (feature + 1) << ":" << featureVector.at(feature);
+                }
+                File << endl;
+            }
+        }
+        printf("\n");
+        File.flush();
+        File.close();
+    } else {
+        printf("Error opening file '%s'!\n", featuresFile.c_str());
+        return EXIT_FAILURE;
+    }
 }
