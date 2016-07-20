@@ -17,17 +17,17 @@ using namespace cv;
 using namespace std;
 
 // Directory containing positive sample images
-static string posSamplesDir = "data/pos/";
+static string posSamplesDir = "../pedestrian-detector/data/images/pos/";
 // Directory containing negative sample images
-static string negSamplesDir = "data/neg/";
+static string negSamplesDir = "../pedestrian-detector/data/images/neg/";
 // Set the file to write the features to
-static string featuresFile = "genfiles/features.dat";
+static string featuresFile = "../pedestrian-detector/genfiles/features.dat";
 // Set the file to write the SVM model to
-static string svmModelFile = "genfiles/svmlightmodel.dat";
+static string svmModelFile = "../pedestrian-detector/genfiles/svmlightmodel.dat";
 // Set the file to write the resulting detecting descriptor vector to
-static string descriptorVectorFile = "genfiles/descriptorvector.dat";
+static string descriptorVectorFile = "../pedestrian-detector/genfiles/descriptorvector.dat";
 // Set the file to write the resulting opencv hog classifier as YAML file
-static string cvHOGFile = "genfiles/cvHOGClassifier.yaml";
+static string cvHOGFile = "../pedestrian-detector/genfiles/cvHOGClassifier.yaml";
 
 // HOG parameters for training that for some reason are not included in the HOG class
 static const Size trainingPadding = Size(0, 0);
@@ -212,13 +212,19 @@ static void detectTest(const HOGDescriptor& hog, const double hitThreshold, Mat&
     showDetections(found, imageData);
 }
 
-int main(int argc, char** argv )
-{
-    if ( argc != 2 )
-    {
-        printf("Usage: ./pd path_to_database");
-        return -1;
-    }
+int main(int argc, char** argv ){
+    HOGDescriptor hog; // Use standard parameters here
+    hog.winSize = Size(64, 128); // Default training images size as used in paper
 
-    return EXIT_SUCCESS;
+    static vector<string> positiveTrainingImages;
+    static vector<string> negativeTrainingImages;
+    static vector<string> validExtensions;
+    validExtensions.push_back("jpg");
+    validExtensions.push_back("png");
+    validExtensions.push_back("ppm");
+
+    getFilesInDirectory(posSamplesDir, positiveTrainingImages, validExtensions);
+    getFilesInDirectory(negSamplesDir, negativeTrainingImages, validExtensions);
+    unsigned long overallSamples = positiveTrainingImages.size() + negativeTrainingImages.size();
+    cout << overallSamples << endl;
 }
