@@ -161,6 +161,57 @@ static void showDetections(const vector<Rect>& found, Mat& imageData) {
     }
 }
 
+/**
+ * Test the trained detector against the same training set to get an approximate idea of the detector.
+ * Warning: This does not allow any statement about detection quality, as the detector might be overfitting.
+ * Detector quality must be determined using an independent test set.
+ * @param hog
+ */
+static void detectTrainingSetTest(const HOGDescriptor& hog, const double hitThreshold, const vector<string>& posFileNames, const vector<string>& negFileNames) {
+    unsigned int truePositives = 0;
+    unsigned int trueNegatives = 0;
+    unsigned int falsePositives = 0;
+    unsigned int falseNegatives = 0;
+    vector<Point> foundDetection;
+    // Walk over positive training samples, generate images and detect
+    for (vector<string>::const_iterator posTrainingIterator = posFileNames.begin(); posTrainingIterator != posFileNames.end(); ++posTrainingIterator) {
+        const Mat imageData = imread(*posTrainingIterator, IMREAD_GRAYSCALE);
+        hog.detect(imageData, foundDetection, hitThreshold, winStride, trainingPadding);
+        if (foundDetection.size() > 0) {
+            ++truePositives;
+            falseNegatives += foundDetection.size() - 1;
+        } else {
+            ++falseNegatives;
+        }
+    }
+    // Walk over negative training samples, generate images and detect
+    for (vector<string>::const_iterator negTrainingIterator = negFileNames.begin(); negTrainingIterator != negFileNames.end(); ++negTrainingIterator) {
+        const Mat imageData = imread(*negTrainingIterator, IMREAD_GRAYSCALE);
+        hog.detect(imageData, foundDetection, hitThreshold, winStride, trainingPadding);
+        if (foundDetection.size() > 0) {
+            falsePositives += foundDetection.size();
+        } else {
+            ++trueNegatives;
+        }
+    }
+
+    printf("Results:\n\tTrue Positives: %u\n\tTrue Negatives: %u\n\tFalse Positives: %u\n\tFalse Negatives: %u\n", truePositives, trueNegatives, falsePositives, falseNegatives);
+}
+
+/**
+ * Test detection with custom HOG description vector
+ * @param hog
+ * @param hitThreshold threshold value for detection
+ * @param imageData
+ */
+static void detectTest(const HOGDescriptor& hog, const double hitThreshold, Mat& imageData) {
+    vector<Rect> found;
+    Size padding(Size(8, 8));
+    Size winStride(Size(8, 8));
+    hog.detectMultiScale(imageData, found, hitThreshold, winStride, padding);
+    showDetections(found, imageData);
+}
+
 int main(int argc, char** argv )
 {
     if ( argc != 2 )
