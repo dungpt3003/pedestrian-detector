@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <opencv2/opencv.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/ml/ml.hpp>
 #include "lib/common.h"
 #include "lib/ImageDatabase.h"
 
@@ -10,7 +12,9 @@ using namespace std;
 int readDatabse(int argc, char** argv){
   const char* dbFName = argv[1];
   ImageDatabase db(dbFName);
-  cout << db << endl;
+  for(int i=0; i<db.getLabels().size(); ++i)
+    cout << db.getFilenames()[i] << " " << db.getLabels()[i] << ' ' << endl;
+  cout << db<< endl;
   return EXIT_SUCCESS;
 }
 

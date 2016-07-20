@@ -9,8 +9,7 @@ using namespace std;
 // Vector Machine class. Contains basically a list of image filenames
 // together with their true or predicted labels.
 class
-ImageDatabase
-{
+ImageDatabase{
 private:
 	std::vector<std::string> _filenames;
 	std::vector<float> _labels;
@@ -21,38 +20,34 @@ private:
 public:
 	// Create a new database.
 	ImageDatabase():
-	_negativesCount(0), _positivesCount(0)
-	{
+	_negativesCount(0), _positivesCount(0){
 	}
 
 	//ImageDatabase(const char* dbFilename);
 	ImageDatabase(const char* dbFilename):
-	_negativesCount(0), _positivesCount(0)
-	{
+	_negativesCount(0), _positivesCount(0){
 		load(dbFilename);
 	}
 
 	ImageDatabase(const vector<float>& labels, const vector<string>& filenames):
-	_negativesCount(0), _positivesCount(0)
-	{
+	_negativesCount(0), _positivesCount(0){
 		_labels = labels;
 		_filenames = filenames;
 
-		for(vector<float>::iterator i = _labels.begin(); i != _labels.end(); i++) {
+		for(vector<float>::iterator i = _labels.begin(); i != _labels.end(); i++){
 			if(*i > 0) _positivesCount++;
 			else if(*i < 0) _negativesCount++;
 		}
 	}
 	// Load a database from file.
-	void load(const char *dbFilename)
-	{
+	void load(const char *dbFilename){
 		_dbFilename = string(dbFilename);
 
 		_negativesCount = 0;
 		_positivesCount = 0;
 
 		ifstream f(dbFilename);
-		if(!f.is_open()) {
+		if(!f.is_open()){
 			printf("Could not open file %s for reading", dbFilename);
 		}
 
@@ -63,7 +58,7 @@ public:
 		_labels.resize(nItems);
 		_filenames.resize(nItems);
 
-		for(int i = 0; i < nItems; i++) {
+		for(int i = 0; i < nItems; i++){
 			f >> _labels[i] >> _filenames[i];
 
 			if(_labels[i] < 0) _negativesCount++;
@@ -72,15 +67,14 @@ public:
 	}
 
 	// Save database to a file
-	void save(const char* dbFilename)
-	{
+	void save(const char* dbFilename){
 		ofstream f(dbFilename);
 		if(!f.is_open()) {
 			printf("Could not open file %s for writing", dbFilename);
 		}
 
 		f << _labels.size() << "\n";
-		for(int i = 0; i < _labels.size(); i++) {
+		for(int i = 0; i < _labels.size(); i++){
 			f << _labels[i] << " " << _filenames[i] << "\n";
 		}
 	}
@@ -101,8 +95,7 @@ public:
 
 // Prints information about the dataset
 std::ostream&
-operator<<(std::ostream& s, const ImageDatabase& db)
-{
+operator<<(std::ostream& s, const ImageDatabase& db){
 	s << "DATABASE INFO\n"
 	  << setw(20) << "Original filename:" << " " << db.getDatabaseFilename() << "\n"
 	  << setw(20) << "Positives:" << setw(5) << right << db.getPositivesCount() << "\n"
