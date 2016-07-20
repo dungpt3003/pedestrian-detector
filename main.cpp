@@ -28,6 +28,8 @@ static string negSamplesDir = "../pedestrian-detector/data/train/neg/";
 static string posTestDir = "../pedestrian-detector/data/test/pos/";
 // Directory containing positive test images
 static string negTestDir = "../pedestrian-detector/data/test/neg/";
+// Directory containing detect test images
+static string detectTestDir = "../pedestrian-detector/data/test/detect/";
 // Set the file to write the features to
 static string featuresFile = "../pedestrian-detector/genfiles/features.dat";
 // Set the file to write the SVM model to
@@ -228,6 +230,7 @@ int main(int argc, char** argv ){
     static vector<string> negativeTrainingImages;
     static vector<string> positiveTestImages;
     static vector<string> negativeTestImages;
+    static vector<string> detectTestImages;
     static vector<string> validExtensions;
     validExtensions.push_back("jpg");
     validExtensions.push_back("png");
@@ -317,10 +320,18 @@ int main(int argc, char** argv ){
     hog.setSVMDetector(descriptorVector);
     hog.save(cvHOGFile);
 
+    /**
     // Test against test set
     getFilesInDirectory(posTestDir, positiveTestImages, validExtensions);
     getFilesInDirectory(negTestDir, negativeTestImages, validExtensions);
     detectTrainingSetTest(hog, hitThreshold, positiveTestImages, negativeTestImages);
-
+    **/
+    getFilesInDirectory(detectTestDir, detectTestImages, validExtensions);
+    for (vector<string>::const_iterator detectTestIterator = detectTestImages.begin(); detectTestIterator != detectTestImages.end(); ++detectTestIterator) {
+        Mat testImage = imread(*detectTestIterator, IMREAD_GRAYSCALE);
+        detectTest(hog, hitThreshold, testImage);
+        imshow("HOG custom detection", testImage);
+        waitKey(0);
+    }
     return EXIT_SUCCESS;
 }
