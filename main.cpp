@@ -139,6 +139,28 @@ static void calculateFeaturesFromInput(const string& imageFilename, vector<float
     imageData.release(); // Release the image again after features are extracted
 }
 
+/**
+ * Shows the detections in the image
+ * @param found vector containing valid detection rectangles
+ * @param imageData the image in which the detections are drawn
+ */
+static void showDetections(const vector<Rect>& found, Mat& imageData) {
+    vector<Rect> found_filtered;
+    size_t i, j;
+    for (i = 0; i < found.size(); ++i) {
+        Rect r = found[i];
+        for (j = 0; j < found.size(); ++j)
+            if (j != i && (r & found[j]) == r)
+                break;
+        if (j == found.size())
+            found_filtered.push_back(r);
+    }
+    for (i = 0; i < found_filtered.size(); i++) {
+        Rect r = found_filtered[i];
+        rectangle(imageData, r.tl(), r.br(), Scalar(64, 255, 64), 3);
+    }
+}
+
 int main(int argc, char** argv )
 {
     if ( argc != 2 )
