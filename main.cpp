@@ -115,6 +115,30 @@ static void getFilesInDirectory(const string& dirName, vector<string>& fileNames
     return;
 }
 
+static void calculateFeaturesFromInput(const string& imageFilename, vector<float>& featureVector, HOGDescriptor& hog) {
+    /** for imread flags from openCV documentation,
+     * @see http://docs.opencv.org/modules/highgui/doc/reading_and_writing_images_and_video.html?highlight=imread#Mat imread(const string& filename, int flags)
+     * @note If you get a compile-time error complaining about following line (esp. imread),
+     * you either do not have a current openCV version (>2.0)
+     * or the linking order is incorrect, try g++ -o openCVHogTrainer main.cpp `pkg-config --cflags --libs opencv`
+     */
+    Mat imageData = imread(imageFilename, IMREAD_GRAYSCALE);
+    if (imageData.empty()) {
+        featureVector.clear();
+        printf("Error: HOG image '%s' is empty, features calculation skipped!\n", imageFilename.c_str());
+        return;
+    }
+    // Check for mismatching dimensions
+    if (imageData.cols != hog.winSize.width || imageData.rows != hog.winSize.height) {
+        featureVector.clear();
+        printf("Error: Image '%s' dimensions (%u x %u) do not match HOG window size (%u x %u)!\n", imageFilename.c_str(), imageData.cols, imageData.rows, hog.winSize.width, hog.winSize.height);
+        return;
+    }
+    vector<Point> locations;
+    hog.compute(imageData, featureVector, winStride, trainingPadding, locations);
+    imageData.release(); // Release the image again after features are extracted
+}
+
 int main(int argc, char** argv )
 {
     if ( argc != 2 )
