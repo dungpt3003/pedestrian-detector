@@ -1,2 +1,8 @@
 /data/
 /genfiles/
+/thirdparty/svmlight/svm_common.c
+/thirdparty/svmlight/svm_hideo.c
+/thirdparty/svmlight/svm_learn.h
+/thirdparty/svmlight/svm_learn.c
+/thirdparty/svmlight/svm_common.h
+/thirdparty/svmlight/kernel.h
