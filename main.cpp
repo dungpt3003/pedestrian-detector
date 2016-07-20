@@ -5,9 +5,22 @@
 #include "lib/common.h"
 #include "lib/ImageDatabase.h"
 
+
 using namespace cv;
 using namespace std;
 
+// Directory containing positive sample images
+static string posSamplesDir = "data/pos/";
+// Directory containing negative sample images
+static string negSamplesDir = "data/neg/";
+// Set the file to write the features to
+static string featuresFile = "genfiles/features.dat";
+// Set the file to write the SVM model to
+static string svmModelFile = "genfiles/svmlightmodel.dat";
+// Set the file to write the resulting detecting descriptor vector to
+static string descriptorVectorFile = "genfiles/descriptorvector.dat";
+// Set the file to write the resulting opencv hog classifier as YAML file
+static string cvHOGFile = "genfiles/cvHOGClassifier.yaml";
 
 int readDatabse(int argc, char** argv){
   const char* dbFName = argv[1];
