@@ -21,9 +21,13 @@ using namespace cv;
 using namespace std;
 
 // Directory containing positive sample images
-static string posSamplesDir = "../pedestrian-detector/data/images/pos/";
+static string posSamplesDir = "../pedestrian-detector/data/train/pos/";
 // Directory containing negative sample images
-static string negSamplesDir = "../pedestrian-detector/data/images/neg/";
+static string negSamplesDir = "../pedestrian-detector/data/train/neg/";
+// Directory containing positive test images
+static string posTestDir = "../pedestrian-detector/data/test/pos/";
+// Directory containing positive test images
+static string negTestDir = "../pedestrian-detector/data/test/neg/";
 // Set the file to write the features to
 static string featuresFile = "../pedestrian-detector/genfiles/features.dat";
 // Set the file to write the SVM model to
@@ -222,6 +226,8 @@ int main(int argc, char** argv ){
 
     static vector<string> positiveTrainingImages;
     static vector<string> negativeTrainingImages;
+    static vector<string> positiveTestImages;
+    static vector<string> negativeTestImages;
     static vector<string> validExtensions;
     validExtensions.push_back("jpg");
     validExtensions.push_back("png");
@@ -311,8 +317,10 @@ int main(int argc, char** argv ){
     hog.setSVMDetector(descriptorVector);
     hog.save(cvHOGFile);
 
-    printf("Testing training phase using training set as test set (just to check if training is ok - no detection quality conclusion with this!)\n");
-    detectTrainingSetTest(hog, hitThreshold, positiveTrainingImages, negativeTrainingImages);
+    // Test against test set
+    getFilesInDirectory(posTestDir, positiveTestImages, validExtensions);
+    getFilesInDirectory(negTestDir, negativeTestImages, validExtensions);
+    detectTrainingSetTest(hog, hitThreshold, positiveTestImages, negativeTestImages);
 
     return EXIT_SUCCESS;
 }
