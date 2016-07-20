@@ -45,13 +45,29 @@ static void resetCursor(void) {
 }
 
 
-int readDatabse(int argc, char** argv){
-  const char* dbFName = argv[1];
-  ImageDatabase db(dbFName);
-  for(int i=0; i<db.getLabels().size(); ++i)
-    cout << db.getFilenames()[i] << " " << db.getLabels()[i] << ' ' << endl;
-  cout << db<< endl;
-  return EXIT_SUCCESS;
+static void saveDescriptorVectorToFile(vector<float>& descriptorVector, vector<unsigned int>& _vectorIndices, string fileName) {
+    printf("Saving descriptor vector to file '%s'\n", fileName.c_str());
+    string separator = " "; // Use blank as default separator between single features
+    fstream File;
+    float percent;
+    File.open(fileName.c_str(), ios::out);
+    if (File.good() && File.is_open()) {
+        printf("Saving %lu descriptor vector features:\t", descriptorVector.size());
+        storeCursor();
+        for (int feature = 0; feature < descriptorVector.size(); ++feature) {
+            if ((feature % 10 == 0) || (feature == (descriptorVector.size()-1)) ) {
+                percent = ((1 + feature) * 100 / descriptorVector.size());
+                printf("%4u (%3.0f%%)", feature, percent);
+                fflush(stdout);
+                resetCursor();
+            }
+            File << descriptorVector.at(feature) << separator;
+        }
+        printf("\n");
+        File << endl;
+        File.flush();
+        File.close();
+    }
 }
 
 int main(int argc, char** argv )
@@ -62,5 +78,5 @@ int main(int argc, char** argv )
         return -1;
     }
 
-    return readDatabse(argc, argv);
+    return EXIT_SUCCESS;
 }
