@@ -291,8 +291,28 @@ int main(int argc, char** argv ){
 
     /// Read in and train the calculated feature vectors
     printf("Calling %s\n", TRAINHOG_SVM_TO_TRAIN::getInstance()->getSVMName());
-    //TRAINHOG_SVM_TO_TRAIN::getInstance()->read_problem(const_cast<char*> (featuresFile.c_str()));
-    //TRAINHOG_SVM_TO_TRAIN::getInstance()->train(); // Call the core libsvm training procedure
-    //printf("Training done, saving model file!\n");
-    //TRAINHOG_SVM_TO_TRAIN::getInstance()->saveModelToFile(svmModelFile);
+    TRAINHOG_SVM_TO_TRAIN::getInstance()->read_problem(const_cast<char*> (featuresFile.c_str()));
+    TRAINHOG_SVM_TO_TRAIN::getInstance()->train(); // Call the core libsvm training procedure
+    printf("Training done, saving model file!\n");
+    TRAINHOG_SVM_TO_TRAIN::getInstance()->saveModelToFile(svmModelFile);
+
+    // Generating representative single HOG feature
+    printf("Generating representative single HOG feature vector using svmlight!\n");
+    vector<float> descriptorVector;
+    vector<unsigned int> descriptorVectorIndices;
+    // Generate a single detecting feature vector (v1 | b) from the trained support vectors, for use e.g. with the HOG algorithm
+    TRAINHOG_SVM_TO_TRAIN::getInstance()->getSingleDetectingVector(descriptorVector, descriptorVectorIndices);
+    // And save the precious to file system
+    saveDescriptorVectorToFile(descriptorVector, descriptorVectorIndices, descriptorVectorFile);
+
+    // Detector detection tolerance threshold
+    const double hitThreshold = TRAINHOG_SVM_TO_TRAIN::getInstance()->getThreshold();
+    // Set our custom detecting vector
+    hog.setSVMDetector(descriptorVector);
+    hog.save(cvHOGFile);
+
+    printf("Testing training phase using training set as test set (just to check if training is ok - no detection quality conclusion with this!)\n");
+    detectTrainingSetTest(hog, hitThreshold, positiveTrainingImages, negativeTrainingImages);
+
+    return EXIT_SUCCESS;
 }
