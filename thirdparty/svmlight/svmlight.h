@@ -1,10 +1,10 @@
-/** 
+/**
  * @file:   svmlight.h
  * @author: Jan Hendriks (dahoc3150 [at] gmail.com)
  * @date:   Created on 11. Mai 2011
- * @brief:  Wrapper interface for SVMlight, 
+ * @brief:  Wrapper interface for SVMlight,
  * @see http://www.cs.cornell.edu/people/tj/svm_light/ for SVMlight details and terms of use
- * 
+ *
  */
 
 #ifndef SVMLIGHT_H
@@ -128,7 +128,7 @@ public:
         singleDetectorVector.clear();
         singleDetectorVector.resize(model->totwords, 0.);
         printf("Resulting vector size %lu\n", singleDetectorVector.size());
-        
+
         // Walk over every support vector
         for (long ssv = 1; ssv < model->sv_num; ++ssv) { // Don't know what's inside model->supvec[0] ?!
             // Get a single support vector

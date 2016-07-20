@@ -11,6 +11,7 @@ include_directories( ${OpenCV_INCLUDE_DIRS} )
 
 # Build subdirectories
 ADD_SUBDIRECTORY(thirdparty/libsvm-3.14)
+ADD_SUBDIRECTORY(thirdparty/svmlight)
 
 # Building the project
 ADD_EXECUTABLE(pd main.cpp)

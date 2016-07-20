@@ -11,8 +11,10 @@
 #include <opencv2/ml/ml.hpp>
 #include "lib/common.h"
 #include "lib/ImageDatabase.h"
+#include "thirdparty/svmlight/svmlight.h"
 
 #define TRAINHOG_USEDSVM SVMLIGHT
+#define TRAINHOG_SVM_TO_TRAIN SVMlight
 
 using namespace cv;
 using namespace std;
@@ -285,4 +287,11 @@ int main(int argc, char** argv ){
         printf("Error opening file '%s'!\n", featuresFile.c_str());
         return EXIT_FAILURE;
     }
+
+    /// Read in and train the calculated feature vectors
+    printf("Calling %s\n", TRAINHOG_SVM_TO_TRAIN::getInstance()->getSVMName());
+    TRAINHOG_SVM_TO_TRAIN::getInstance()->read_problem(const_cast<char*> (featuresFile.c_str()));
+    TRAINHOG_SVM_TO_TRAIN::getInstance()->train(); // Call the core libsvm training procedure
+    printf("Training done, saving model file!\n");
+    TRAINHOG_SVM_TO_TRAIN::getInstance()->saveModelToFile(svmModelFile);
 }
