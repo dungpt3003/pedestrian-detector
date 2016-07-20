@@ -16,4 +16,4 @@ ADD_SUBDIRECTORY(thirdparty/svmlight)
 # Building the project
 ADD_EXECUTABLE(pd main.cpp)
 
-target_link_libraries( pd ${OpenCV_LIBS} )
+target_link_libraries( pd ${OpenCV_LIBS} svmlight )

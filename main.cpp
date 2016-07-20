@@ -13,6 +13,7 @@
 #include "lib/ImageDatabase.h"
 #include "thirdparty/svmlight/svmlight.h"
 
+#define SVMLIGHT 1
 #define TRAINHOG_USEDSVM SVMLIGHT
 #define TRAINHOG_SVM_TO_TRAIN SVMlight
 
@@ -290,8 +291,8 @@ int main(int argc, char** argv ){
 
     /// Read in and train the calculated feature vectors
     printf("Calling %s\n", TRAINHOG_SVM_TO_TRAIN::getInstance()->getSVMName());
-    TRAINHOG_SVM_TO_TRAIN::getInstance()->read_problem(const_cast<char*> (featuresFile.c_str()));
-    TRAINHOG_SVM_TO_TRAIN::getInstance()->train(); // Call the core libsvm training procedure
-    printf("Training done, saving model file!\n");
-    TRAINHOG_SVM_TO_TRAIN::getInstance()->saveModelToFile(svmModelFile);
+    //TRAINHOG_SVM_TO_TRAIN::getInstance()->read_problem(const_cast<char*> (featuresFile.c_str()));
+    //TRAINHOG_SVM_TO_TRAIN::getInstance()->train(); // Call the core libsvm training procedure
+    //printf("Training done, saving model file!\n");
+    //TRAINHOG_SVM_TO_TRAIN::getInstance()->saveModelToFile(svmModelFile);
 }

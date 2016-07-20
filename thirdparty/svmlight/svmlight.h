@@ -7,11 +7,12 @@
  *
  */
 
-#ifndef SVMLIGHT_H
-#define	SVMLIGHT_H
+#ifndef SVMLIGHT_H_INCLUDED
+#define	SVMLIGHT_H_INCLUDED
 
 #include <stdio.h>
 #include <vector>
+
 // svmlight related
 // namespace required for avoiding collisions of declarations (e.g. LINEAR being declared in flann, svmlight and libsvm)
 namespace svmlight {
