@@ -112,7 +112,7 @@ static void getFilesInDirectory(const string& dirName, vector<string>& fileNames
             // Check if extension is matching the wanted ones
             string tempExt = toLowerCase(string(ep->d_name).substr(extensionLocation + 1));
             if (find(validExtensions.begin(), validExtensions.end(), tempExt) != validExtensions.end()) {
-                printf("Found matching data file '%s'\n", ep->d_name);
+                //printf("Found matching data file '%s'\n", ep->d_name);
                 fileNames.push_back((string) dirName + ep->d_name);
             } else {
                 printf("Found file does not match required file type, skipping: '%s'\n", ep->d_name);
@@ -207,7 +207,6 @@ static void detectTrainingSetTest(const HOGDescriptor& hog, const double hitThre
 
     printf("Results:\n\tTrue Positives: %u\n\tTrue Negatives: %u\n\tFalse Positives: %u\n\tFalse Negatives: %u\n", truePositives, trueNegatives, falsePositives, falseNegatives);
 }
-
 /**
  * Test detection with custom HOG description vector
  * @param hog
@@ -271,7 +270,7 @@ int main(int argc, char** argv ){
             // Output progress
             if ( (currentFile+1) % 10 == 0 || (currentFile+1) == overallSamples ) {
                 percent = ((currentFile+1) * 100 / overallSamples);
-                printf("%5lu (%3.0f%%):\tFile '%s'", (currentFile+1), percent, currentImageFile.c_str());
+                //printf("%5lu (%3.0f%%):\tFile '%s'", (currentFile+1), percent, currentImageFile.c_str());
                 fflush(stdout);
                 resetCursor();
             }
@@ -320,18 +319,23 @@ int main(int argc, char** argv ){
     hog.setSVMDetector(descriptorVector);
     hog.save(cvHOGFile);
 
-    /**
     // Test against test set
     getFilesInDirectory(posTestDir, positiveTestImages, validExtensions);
     getFilesInDirectory(negTestDir, negativeTestImages, validExtensions);
     detectTrainingSetTest(hog, hitThreshold, positiveTestImages, negativeTestImages);
-    **/
+
+
+    // Test the model against detection test set.
+    /*
     getFilesInDirectory(detectTestDir, detectTestImages, validExtensions);
+    cout << hitThreshold << endl;
     for (vector<string>::const_iterator detectTestIterator = detectTestImages.begin(); detectTestIterator != detectTestImages.end(); ++detectTestIterator) {
         Mat testImage = imread(*detectTestIterator, IMREAD_GRAYSCALE);
-        detectTest(hog, hitThreshold, testImage);
+        detectTest(hog, 0.8, testImage);
         imshow("HOG custom detection", testImage);
         waitKey(0);
     }
+    */
     return EXIT_SUCCESS;
+
 }
