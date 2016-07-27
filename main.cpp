@@ -9,6 +9,7 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/ml/ml.hpp>
+#include <opencv2/core/core.hpp>
 #include "lib/common.h"
 #include "lib/ImageDatabase.h"
 #include "thirdparty/svmlight/svmlight.h"
@@ -223,7 +224,7 @@ static void detectTest(const HOGDescriptor& hog, const double hitThreshold, Mat&
 
 int main(int argc, char** argv ){
     HOGDescriptor hog; // Use standard parameters here
-    hog.winSize = Size(96, 160); // Training images size
+    hog.winSize = Size(48, 96); // Training images size
 
     static vector<string> positiveTrainingImages;
     static vector<string> negativeTrainingImages;
@@ -234,6 +235,9 @@ int main(int argc, char** argv ){
     validExtensions.push_back("jpg");
     validExtensions.push_back("png");
     validExtensions.push_back("ppm");
+    validExtensions.push_back("pgm");
+    validExtensions.push_back("mp4");
+
 
     getFilesInDirectory(posSamplesDir, positiveTrainingImages, validExtensions);
     getFilesInDirectory(negSamplesDir, negativeTrainingImages, validExtensions);
@@ -277,10 +281,7 @@ int main(int argc, char** argv ){
             // Calculate feature vector from current image file
             calculateFeaturesFromInput(currentImageFile, featureVector, hog);
             if (!featureVector.empty()) {
-                /* Put positive or negative sample class to file,
-                 * true=positive, false=negative,
-                 * and convert positive class to +1 and negative class to -1 for SVMlight
-                 */
+
                 File << ((currentFile < positiveTrainingImages.size()) ? "+1" : "-1");
                 // Save feature vector components
                 for (unsigned int feature = 0; feature < featureVector.size(); ++feature) {
@@ -326,16 +327,39 @@ int main(int argc, char** argv ){
 
 
     // Test the model against detection test set.
-    /*
     getFilesInDirectory(detectTestDir, detectTestImages, validExtensions);
+
     cout << hitThreshold << endl;
     for (vector<string>::const_iterator detectTestIterator = detectTestImages.begin(); detectTestIterator != detectTestImages.end(); ++detectTestIterator) {
-        Mat testImage = imread(*detectTestIterator, IMREAD_GRAYSCALE);
-        detectTest(hog, 0.8, testImage);
+        Mat testImage = imread(*detectTestIterator);
+        detectTest(hog, 1.6, testImage);
         imshow("HOG custom detection", testImage);
         waitKey(0);
     }
-    */
-    return EXIT_SUCCESS;
+    /*
+    cout << hitThreshold << endl;
+    // Test the model against actual car driving videos.
+    //for (vector<string>::const_iterator detectTestIterator = detectTestImages.begin(); detectTestIterator != detectTestImages.end(); ++detectTestIterator) {
+        VideoCapture capture("../pedestrian-detector/data/test/detect/FILE6661.MP4");
+        capture.set(CV_CAP_PROP_FRAME_WIDTH, 960);
+        capture.set(CV_CAP_PROP_FRAME_HEIGHT, 640);
+        Mat frame;
 
+        if( !capture.isOpened() )
+            throw "Error when reading mp4 file";
+
+        for( ; ; ){
+            capture.read(frame);
+            if(frame.empty())
+                break;
+            resize(frame, frame, Size(960, 640), 0, 0, INTER_CUBIC);
+            //cvtColor(frame, frame, CV_BGR2GRAY);
+            detectTest(hog, hitThreshold * 2, frame);
+            namedWindow( "Test", 1);
+            imshow("Test", frame);
+            waitKey(1); // waits to display frame
+        }
+        waitKey(0); // key press to close window
+                    // releases and window destroy are automatic in C++ interface
+    //}*/
 }
